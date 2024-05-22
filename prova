@@ -1,11 +1,14 @@
-codice mobile
-import React, { useState } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NavigationContainer } from '@react-navigation/native';
 import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
-import DatePicker from 'react-native-date-picker';
+import DatePicker from '@react-native-community/datetimepicker'; // Importa il DatePicker dalla community
+
+
+// Creazione del context degli eventi
+const EventsContext = createContext();
 
 const Statistiche = () => {
   return (
@@ -24,27 +27,32 @@ const GestisciEvento = () => {
 };
 
 const Eventi = () => {
+  const { events } = useContext(EventsContext);
+
   return (
     <View>
       <Text>Schermata Eventi</Text>
+      {events.map((evento, index) => (
+        <View key={index} style={styles.eventContainer}>
+          <Text style={styles.eventTitle}>{evento.titolo}</Text>
+          <Text style={styles.eventDate}>{evento.data.toDateString()}</Text>
+          <Text style={styles.eventDescription}>{evento.descrizione}</Text>
+        </View>
+      ))}
     </View>
   );
 };
 
 const AggiungiEvento = ({ navigation }) => {
+  const { addEvent } = useContext(EventsContext); // Ottenere la funzione per aggiungere un evento dal context
   const [titolo, setTitolo] = useState('');
   const [data, setData] = useState(new Date());
   const [descrizione, setDescrizione] = useState('');
   const [open, setOpen] = useState(false);
 
   const handleAggiungiEvento = () => {
-    // Logica per aggiungere l'evento
-    console.log({
-      titolo,
-      data,
-      descrizione
-    });
-    // Torna alla schermata precedente dopo aver aggiunto l'evento
+    const nuovoEvento = { titolo, data, descrizione };
+    addEvent(nuovoEvento); // Aggiungi l'evento utilizzando la funzione dal context
     navigation.goBack();
   };
 
@@ -62,18 +70,18 @@ const AggiungiEvento = ({ navigation }) => {
       <TouchableOpacity onPress={() => setOpen(true)} style={styles.input}>
         <Text>{data.toDateString()}</Text>
       </TouchableOpacity>
-      <DatePicker
-        modal
-        open={open}
-        date={data}
-        onConfirm={(date) => {
-          setOpen(false);
-          setData(date);
-        }}
-        onCancel={() => {
-          setOpen(false);
-        }}
-      />
+  <DatePicker
+  modal
+  open={open}
+  value={data} // Assicurati di passare correttamente il valore della data
+  onConfirm={(date) => {
+    setOpen(false);
+    setData(date);
+  }}
+  onCancel={() => {
+    setOpen(false);
+  }}
+/>
       <Text style={styles.label}>Descrizione:</Text>
       <TextInput
         style={[styles.input, styles.textArea]}
@@ -90,9 +98,18 @@ const AggiungiEvento = ({ navigation }) => {
 };
 
 const Dashboard = ({ navigation }) => {
+  const { events } = useContext(EventsContext);
+
   return (
     <View style={{ flex: 1 }}>
       <Text style={styles.title}>Qui verranno mostrati tutti gli eventi</Text>
+      {events.map((evento, index) => (
+        <View key={index} style={styles.eventContainer}>
+          <Text style={styles.eventTitle}>{evento.titolo}</Text>
+          <Text style={styles.eventDate}>{evento.data.toDateString()}</Text>
+          <Text style={styles.eventDescription}>{evento.descrizione}</Text>
+        </View>
+      ))}
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('AggiungiEvento')}
@@ -180,21 +197,29 @@ const TabNavigator = () => {
 };
 
 const App = () => {
+  const [events, setEvents] = useState([]);
+
+  const addEvent = (newEvent) => {
+    setEvents([...events, newEvent]);
+  };
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Main"
-          component={TabNavigator}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="AggiungiEvento"
-          component={AggiungiEvento}
-          options={{ title: 'Aggiungi Evento' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <EventsContext.Provider value={{ events, addEvent }}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Main"
+            component={TabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AggiungiEvento"
+            component={AggiungiEvento}
+            options={{ title: 'Aggiungi Evento' }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </EventsContext.Provider>
   );
 };
 
@@ -237,6 +262,10 @@ const styles = StyleSheet.create({
   },
 });
 
+
 export default App;
+
+
+
 
 
