@@ -30,10 +30,10 @@ const Eventi = () => {
   const { events } = useContext(EventsContext);
 
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Schermata Eventi</Text>
       {events.map((evento, index) => (
-        <View key={index} style={styles.eventContainer}>
+        <View key={index} style={[styles.eventContainer, { backgroundColor: '#e6e6fa' }]}>
           <Text style={styles.eventTitle}>{evento.titolo}</Text>
           <Text style={styles.eventDate}>{evento.data.toDateString()}</Text>
           <Text style={styles.eventDescription}>{evento.descrizione}</Text>
@@ -260,12 +260,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  eventContainer: {
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#e6e6fa',
+        marginLeft: 20, // Aggiungi spazio vuoto a sinistra
+    marginRight: 20, // Aggiungi spazio vuoto a destra
+  },
+
+    eventTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
 });
 
 
 export default App;
-
-
-
 
 
