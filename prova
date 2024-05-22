@@ -1,1 +1,242 @@
 codice mobile
+import React, { useState } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
+import DatePicker from 'react-native-date-picker';
+
+const Statistiche = () => {
+  return (
+    <View>
+      <Text>Statistics Screen</Text>
+    </View>
+  );
+};
+
+const GestisciEvento = () => {
+  return (
+    <View>
+      <Text>Edit Screen</Text>
+    </View>
+  );
+};
+
+const Eventi = () => {
+  return (
+    <View>
+      <Text>Schermata Eventi</Text>
+    </View>
+  );
+};
+
+const AggiungiEvento = ({ navigation }) => {
+  const [titolo, setTitolo] = useState('');
+  const [data, setData] = useState(new Date());
+  const [descrizione, setDescrizione] = useState('');
+  const [open, setOpen] = useState(false);
+
+  const handleAggiungiEvento = () => {
+    // Logica per aggiungere l'evento
+    console.log({
+      titolo,
+      data,
+      descrizione
+    });
+    // Torna alla schermata precedente dopo aver aggiunto l'evento
+    navigation.goBack();
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.label}>Titolo:</Text>
+      <TextInput
+        style={styles.input}
+        value={titolo}
+        onChangeText={setTitolo}
+        placeholder="Inserisci il titolo"
+        placeholderTextColor="#888"
+      />
+      <Text style={styles.label}>Data:</Text>
+      <TouchableOpacity onPress={() => setOpen(true)} style={styles.input}>
+        <Text>{data.toDateString()}</Text>
+      </TouchableOpacity>
+      <DatePicker
+        modal
+        open={open}
+        date={data}
+        onConfirm={(date) => {
+          setOpen(false);
+          setData(date);
+        }}
+        onCancel={() => {
+          setOpen(false);
+        }}
+      />
+      <Text style={styles.label}>Descrizione:</Text>
+      <TextInput
+        style={[styles.input, styles.textArea]}
+        value={descrizione}
+        onChangeText={setDescrizione}
+        placeholder="Inserisci la descrizione"
+        placeholderTextColor="#888"
+        multiline={true}
+        numberOfLines={4}
+      />
+      <Button title="Aggiungi Evento" onPress={handleAggiungiEvento} />
+    </View>
+  );
+};
+
+const Dashboard = ({ navigation }) => {
+  return (
+    <View style={{ flex: 1 }}>
+      <Text style={styles.title}>Qui verranno mostrati tutti gli eventi</Text>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate('AggiungiEvento')}
+      >
+        <MaterialCommunityIcons name="plus" color="#fff" size={24} />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const Notifiche = () => {
+  return (
+    <View>
+      <Text>Schermata Notifiche</Text>
+    </View>
+  );
+};
+
+const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+const TabNavigator = () => {
+  return (
+    <Tab.Navigator
+      initialRouteName="Dashboard"
+      screenOptions={{
+        tabBarActiveTintColor: '#6200ea',
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: { backgroundColor: '#ffff' },
+      }}
+    >
+      <Tab.Screen
+        name="Dashboard"
+        component={Dashboard}
+        options={{
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="view-dashboard" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Eventi"
+        component={Eventi}
+        options={{
+          tabBarLabel: 'Eventi',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="calendar" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Modifica Evento"
+        component={GestisciEvento}
+        options={{
+          tabBarLabel: 'Modifica',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="pencil" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Statistiche"
+        component={Statistiche}
+        options={{
+          tabBarLabel: 'Statistiche',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="chart-bar" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notifiche"
+        component={Notifiche}
+        options={{
+          tabBarLabel: 'Notifiche',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="bell" color={color} size={size} />
+          ),
+          tabBarBadge: 3,
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Main"
+          component={TabNavigator}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AggiungiEvento"
+          component={AggiungiEvento}
+          options={{ title: 'Aggiungi Evento' }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  label: {
+    fontSize: 16,
+    marginVertical: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#fff',
+    marginBottom: 12,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    margin: 20,
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#6200ea',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+
+export default App;
+
+
